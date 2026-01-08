@@ -268,6 +268,18 @@ This can be used for quick testing and screenshots for submission.
 
 ---
 
+## 📸 Screenshots
+
+### Swagger UI
+![Swagger UI](screenshots/swagger_ui.png)
+
+### API Response (Postman)
+![API Response](screenshots/api_response.png)
+
+### Ollama Running Locally
+![Ollama](screenshots/ollama_running.png)
+
+
 ## 👤 Author
 
 **Name:** Ansh Jain
@@ -286,3 +298,4 @@ This can be used for quick testing and screenshots for submission.
 
 ✅ **M1 Assignment Completed Successfully**
 ✅ *Project is complete, functional, and evaluation-ready.*
+
