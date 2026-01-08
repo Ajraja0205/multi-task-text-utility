@@ -1,301 +1,304 @@
-# 📘 M1 Assignment – Multi-Task Text Utility (Local LLM using Ollama)
+📘 M1 Assignment – Multi-Task Text Utility
+(Local LLM using Ollama with Semantic Memory)
 
-## 📌 Overview
+Author: Ansh Jain
+Assignment: GenAI – M1
+Tech Stack: Python, FastAPI, Ollama, ChromaDB
 
-This project is part of the **M1 (Milestone 1) GenAI Assignment**. The goal is to build a **local GenAI-powered text utility** using:
+📌 Overview
 
-* **Ollama** for running Large Language Models locally
-* **FastAPI** for exposing REST APIs
-* **Python** for backend logic
+This project is part of the M1 (Milestone 1) GenAI Assignment.
 
-The application exposes an API endpoint that accepts a user question, sends it to a locally running LLM, and returns:
+The objective is to build a local GenAI-powered text utility that runs entirely offline using:
 
-* The generated answer
-* Basic metrics such as latency, token estimation, and cost estimation
+🦙 Ollama for local LLM inference
 
----
+⚡ FastAPI for REST APIs
 
-## 🎯 Objectives of M1
+🧠 ChromaDB for semantic memory and caching
 
-* Run an LLM **locally** (no OpenAI / paid APIs)
-* Build a clean backend service using FastAPI
-* Separate concerns: prompts, LLM client, metrics
-* Demonstrate prompt-based task handling
-* Track basic performance metrics
+🐍 Python for backend logic
 
----
+The application accepts a user question and returns:
 
-## 🧱 Project Structure
+A generated answer
 
-```
+Confidence score
+
+Latency
+
+Estimated token usage
+
+Estimated cost (0.0 for local LLM)
+
+🎯 Objectives of M1
+
+Run an LLM locally (no paid APIs)
+
+Build a clean backend service using FastAPI
+
+Separate concerns (prompts, LLM client, memory, metrics)
+
+Demonstrate prompt-based task handling
+
+Track basic performance metrics
+
+Implement semantic memory caching to reduce redundant LLM calls
+
+🏗️ System Architecture
+graph TD
+    Client[Client / Postman / Swagger UI]
+
+    Client -->|POST /ask| FastAPI[FastAPI App]
+
+    FastAPI --> PromptBuilder[Prompt Builder]
+    PromptBuilder --> LLMClient[LLM Client]
+
+    LLMClient --> Memory[ChromaDB<br/>Semantic Memory]
+
+    Memory -->|Cache Hit| FastAPI
+    Memory -->|Cache Miss| Ollama[Ollama LLM<br/>phi3 Model]
+
+    Ollama --> LLMClient
+    LLMClient --> Metrics[Metrics Engine]
+    Metrics --> FastAPI
+
+    FastAPI --> Client
+
+🔁 Request Flow (Sequence)
+sequenceDiagram
+    participant C as Client
+    participant F as FastAPI
+    participant M as ChromaDB
+    participant L as Ollama LLM
+
+    C->>F: POST /ask (question)
+    F->>F: Build system prompt
+    F->>M: Query semantic memory
+
+    alt Similar question exists
+        M-->>F: Cached answer
+        F-->>C: Answer + metrics (cache)
+    else No match
+        F->>L: Generate response
+        L-->>F: Raw LLM output
+        F->>F: Normalize output
+        F->>M: Store answer
+        F-->>C: Answer + metrics (ollama)
+    end
+
+🧠 Semantic Memory Decision Flow
+flowchart TD
+    Q[New Question]
+    Q --> Search[Search ChromaDB]
+    Search --> Check{Distance < Threshold?}
+
+    Check -->|Yes| Cached[Return cached answer]
+    Check -->|No| LLM[Call Ollama]
+
+    LLM --> Clean[Normalize text]
+    Clean --> Store[Store in ChromaDB]
+    Store --> Return[Return answer]
+
+🧱 Project Structure
 multi-task-text-utility/
 │
 ├── app/
+│   ├── __init__.py
 │   ├── main.py            # FastAPI entry point
-│   ├── llm_client.py      # Ollama LLM integration
-│   ├── prompts.py         # Prompt templates
+│   ├── llm_client.py      # Ollama LLM + caching logic
+│   ├── memory.py          # ChromaDB semantic memory
 │   ├── metrics.py         # Latency, token & cost estimation
-│   └── __init__.py
+│   ├── prompts.py         # Prompt templates
 │
-├── venv/                  # Python virtual environment
-├── requirements.txt       # Python dependencies
-├── README.md              # Project documentation
-└── .env (optional)        # Environment variables (if needed)
-```
+├── chroma_db/             # Persistent vector storage
+├── screenshots/           # API & Swagger screenshots
+│
+├── requirements.txt
+├── .env
+├── .env.example
+└── README.md
 
----
+⚙️ Prerequisites
 
-## ⚙️ Prerequisites
+Ensure the following are installed:
 
-Make sure the following are installed on your system:
+Python 3.10+
 
-* **Python 3.10+** (recommended: 3.11 or 3.12)
-* **Ollama** (installed and added to PATH)
-* **Git** (optional)
-* **Postman** or browser (for API testing)
+Ollama
 
----
+Git (optional)
 
-## 🦙 Ollama Setup (Local LLM)
+Postman / Browser
 
-### 1️⃣ Verify Ollama installation
-
-```bash
+🦙 Ollama Setup (Local LLM)
+1️⃣ Verify installation
 ollama --version
-```
 
-If not installed, download from:
-[https://ollama.com](https://ollama.com)
+2️⃣ Pull a model
+ollama pull phi3
 
----
 
-### 2️⃣ Pull a model (example: llama3)
+(Other supported models: llama3, mistral)
 
-```bash
-ollama pull llama3
-```
+3️⃣ Test model
+ollama run phi3
 
-You can also use:
-
-* `mistral`
-* `phi3`
-
----
-
-### 3️⃣ Test model locally
-
-```bash
-ollama run llama3
-```
-
-If the model responds, Ollama is working correctly.
-
----
-
-## 🐍 Python Environment Setup
-
-### 1️⃣ Create virtual environment
-
-```bash
+🐍 Python Environment Setup
+1️⃣ Create virtual environment
 python -m venv venv
-```
 
-### 2️⃣ Activate virtual environment
+2️⃣ Activate environment
 
-**Windows (PowerShell):**
+Windows
 
-```bash
 venv\Scripts\Activate.ps1
-```
 
----
 
-### 3️⃣ Install dependencies
+Linux / Mac
 
-```bash
+source venv/bin/activate
+
+3️⃣ Install dependencies
 pip install -r requirements.txt
-```
 
----
-
-## ▶️ Running the Application
-
-From the project root directory:
-
-```bash
+▶️ Running the Application
 uvicorn app.main:app --reload
-```
 
-Expected output:
 
-```
-Uvicorn running on http://127.0.0.1:8000
-```
+App will be available at:
 
----
+http://127.0.0.1:8000
 
-## 🌐 API Endpoints
+🌐 API Endpoints
+✅ Health Check
 
-### ✅ Health Check
-
-**GET** `/`
-
-```
-http://localhost:8000/
-```
+GET /
 
 Response:
 
-```json
-{
-  "status": "ok"
-}
-```
+{ "status": "ok" }
 
----
+🤖 Ask Question
 
-### 🤖 Ask Question (Main Endpoint)
+POST /ask
 
-**POST** `/ask`
+Request:
 
-```
-http://localhost:8000/ask
-```
-
-#### Headers
-
-```
-Content-Type: application/json
-```
-
-#### Request Body
-
-```json
 {
   "question": "My internet is not working, what should I do?"
 }
-```
 
-#### Sample Response
 
-```json
+Response:
+
 {
   "answer": "You can try restarting your router...",
+  "confidence": 0.75,
   "metrics": {
-    "latency": 1.74,
-    "tokens": 128,
+    "latency": 1.23,
+    "tokens": 132,
     "estimated_cost": 0.0
   }
 }
-```
 
----
+📊 Metrics Explanation
 
-## 📊 Metrics Explanation
+Latency – Response time (seconds)
 
-The following metrics are captured:
+Tokens (Estimated) – Approximate token count
 
-* **Latency** – Time taken for the LLM to respond (in seconds)
-* **Tokens (Estimated)** – Rough token count based on text length
-* **Estimated Cost** – Always `0.0` since Ollama runs locally
+Estimated Cost – Always 0.0 (local inference)
 
----
+🧠 Prompt Design
 
-## 🧠 Prompt Design
+Prompts are stored in prompts.py:
 
-Prompts are stored in `prompts.py` and injected dynamically.
-
-Example:
-
-```python
 CUSTOMER_SUPPORT_PROMPT = """
-You are a helpful customer support assistant.
-Answer politely and clearly.
+You are a helpful AI assistant.
+Answer clearly in plain English.
+Do not return JSON or code blocks.
 """
-```
+
 
 This ensures:
 
-* Reusability
-* Clean separation of logic
-* Easy extension for future tasks
+Prompt reusability
 
----
+Clean separation of concerns
 
-## 📁 Environment Variables (.env)
+Easy extension to future tasks
 
-For M1, `.env` is **optional**.
+💾 Semantic Memory (ChromaDB)
 
-If used, it may contain:
+Answers are stored as vector embeddings
 
-```
-OLLAMA_MODEL=llama3
+Similar questions are reused automatically
+
+Distance threshold prevents incorrect reuse
+
+Persistent across restarts
+
+This improves:
+
+Latency
+
+Cost efficiency
+
+Answer consistency
+
+📁 Environment Variables
+
+.env.example
+
+LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://localhost:11434
-```
+OLLAMA_MODEL=phi3
+LLM_TIMEOUT=60
 
----
+🧪 API Documentation (Swagger)
 
-## 🧪 API Documentation (Swagger UI)
+FastAPI auto-docs:
 
-FastAPI provides automatic API docs:
-
-```
 http://localhost:8000/docs
-```
 
-This can be used for quick testing and screenshots for submission.
+🚀 Future Enhancements (M2+)
 
----
+Multi-task routing (summarization, classification)
 
-## 🚀 Future Enhancements (M2+)
+Streaming responses
 
-* Multiple task routing (summarization, classification, rewrite)
-* Streaming responses
-* Authentication
-* Dockerization
-* Advanced metrics & logging
+Dockerization
 
----
+Authentication
 
-## ✅ M1 Checklist
+RAG with document ingestion
+
+Advanced logging & observability
+
+✅ M1 Checklist
 
 ✔ Local LLM via Ollama
 ✔ FastAPI backend
-✔ Clean project structure
 ✔ Prompt separation
 ✔ Metrics captured
-✔ Postman & Swagger tested
+✔ Semantic memory (ChromaDB)
+✔ Fully local & offline
+✔ Evaluation-ready
 
----
+👤 Author
 
-## 📸 Screenshots
+Ansh Jain
+GenAI – M1 Assignment
+Focused on scalable LLM systems & clean backend architecture
 
-### Swagger UI
-![Swagger UI](screenshots/swagger_ui.png)
+📌 Notes
 
-### API Response (Postman)
-![API Response](screenshots/api_response.png)
+No paid APIs used
 
-### Ollama Running Locally
-![Ollama](screenshots/ollama_running.png)
+Fully local execution
 
+Suitable for offline development & evaluation
 
-## 👤 Author
-
-**Name:** Ansh Jain
-**Assignment:** GenAI – M1
-**Tech Stack:** Python, FastAPI, Ollama, LLMs
-
----
-
-## 📌 Notes
-
-* No paid APIs used
-* Entire project runs locally
-* Suitable for offline development
-
----
-
-✅ **M1 Assignment Completed Successfully**
-✅ *Project is complete, functional, and evaluation-ready.*
-
+✅ M1 Assignment Completed Successfully
+✅ Extended with semantic memory and caching
