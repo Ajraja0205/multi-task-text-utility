@@ -1,48 +1,32 @@
-📘 M1 Assignment – Multi-Task Text Utility
-(Local LLM using Ollama with Semantic Memory)
+# M1 — FastAPI + Local LLM
+Lightweight FastAPI service that demonstrates a local GenAI workflow using Ollama for LLM inference and ChromaDB for semantic memory.
 
 Author: Ansh Jain
 Assignment: GenAI – M1
 Tech Stack: Python, FastAPI, Ollama, ChromaDB
 
 📌 Overview
-
 This project is part of the M1 (Milestone 1) GenAI Assignment.
 
 The objective is to build a local GenAI-powered text utility that runs entirely offline using:
-
 🦙 Ollama for local LLM inference
-
 ⚡ FastAPI for REST APIs
-
 🧠 ChromaDB for semantic memory and caching
-
 🐍 Python for backend logic
 
 The application accepts a user question and returns:
-
-A generated answer
-
-Confidence score
-
-Latency
-
-Estimated token usage
-
-Estimated cost (0.0 for local LLM)
+1.A generated answer
+2.Confidence score
+3.Latency
+4.Estimated token usage
+5.Estimated cost (0.0 for local LLM)
 
 🎯 Objectives of M1
-
-Run an LLM locally (no paid APIs)
-
-Build a clean backend service using FastAPI
-
-Separate concerns (prompts, LLM client, memory, metrics)
-
-Demonstrate prompt-based task handling
-
-Track basic performance metrics
-
+1.Run an LLM locally (no paid APIs)
+2.Build a clean backend service using FastAPI
+3.Separate concerns 6.(prompts, LLM client, memory, metrics)
+4.Demonstrate prompt-based task handling
+5.Track basic performance metrics
 Implement semantic memory caching to reduce redundant LLM calls
 
 🏗️ System Architecture
@@ -122,26 +106,18 @@ multi-task-text-utility/
 ⚙️ Prerequisites
 
 Ensure the following are installed:
-
 Python 3.10+
-
 Ollama
-
 Git (optional)
-
 Postman / Browser
 
 🦙 Ollama Setup (Local LLM)
 1️⃣ Verify installation
 ollama --version
-
-2️⃣ Pull a model
 ollama pull phi3
-
-
 (Other supported models: llama3, mistral)
 
-3️⃣ Test model
+2️⃣ Test model
 ollama run phi3
 
 🐍 Python Environment Setup
@@ -149,15 +125,7 @@ ollama run phi3
 python -m venv venv
 
 2️⃣ Activate environment
-
-Windows
-
-venv\Scripts\Activate.ps1
-
-
-Linux / Mac
-
-source venv/bin/activate
+Windows : venv\Scripts\Activate
 
 3️⃣ Install dependencies
 pip install -r requirements.txt
@@ -165,33 +133,24 @@ pip install -r requirements.txt
 ▶️ Running the Application
 uvicorn app.main:app --reload
 
-
-App will be available at:
-
-http://127.0.0.1:8000
+App will be available at: http://127.0.0.1:8000
 
 🌐 API Endpoints
 ✅ Health Check
 
 GET /
-
-Response:
-
-{ "status": "ok" }
+Response: { "status": "ok" }
 
 🤖 Ask Question
 
 POST /ask
 
 Request:
-
 {
   "question": "My internet is not working, what should I do?"
 }
 
-
 Response:
-
 {
   "answer": "You can try restarting your router...",
   "confidence": 0.75,
@@ -203,48 +162,32 @@ Response:
 }
 
 📊 Metrics Explanation
-
 Latency – Response time (seconds)
-
 Tokens (Estimated) – Approximate token count
-
 Estimated Cost – Always 0.0 (local inference)
 
 🧠 Prompt Design
-
-Prompts are stored in prompts.py:
-
+Prompts are stored in prompts.py: 
 CUSTOMER_SUPPORT_PROMPT = """
 You are a helpful AI assistant.
 Answer clearly in plain English.
 Do not return JSON or code blocks.
 """
 
-
 This ensures:
-
 Prompt reusability
-
 Clean separation of concerns
-
 Easy extension to future tasks
 
 💾 Semantic Memory (ChromaDB)
-
 Answers are stored as vector embeddings
-
 Similar questions are reused automatically
-
 Distance threshold prevents incorrect reuse
-
 Persistent across restarts
 
 This improves:
-
 Latency
-
 Cost efficiency
-
 Answer consistency
 
 📁 Environment Variables
@@ -258,22 +201,14 @@ LLM_TIMEOUT=60
 
 🧪 API Documentation (Swagger)
 
-FastAPI auto-docs:
-
-http://localhost:8000/docs
+FastAPI auto-docs: http://localhost:8000/docs
 
 🚀 Future Enhancements (M2+)
-
 Multi-task routing (summarization, classification)
-
 Streaming responses
-
 Dockerization
-
 Authentication
-
 RAG with document ingestion
-
 Advanced logging & observability
 
 ✅ M1 Checklist
@@ -293,11 +228,8 @@ GenAI – M1 Assignment
 Focused on scalable LLM systems & clean backend architecture
 
 📌 Notes
-
 No paid APIs used
-
 Fully local execution
-
 Suitable for offline development & evaluation
 
 ✅ M1 Assignment Completed Successfully

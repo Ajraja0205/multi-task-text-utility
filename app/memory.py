@@ -21,6 +21,7 @@ def store_chat(question: str, answer: str):
         ids=[str(hash(question))]
     )
 
+
 def retrieve_similar(query: str, threshold: float = 0.15):
     results = collection.query(
         query_texts=[query],
